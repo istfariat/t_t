@@ -1,0 +1,17 @@
+﻿<Window x:Class="t_t.IdleNotificationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:t_t"
+        mc:Ignorable="d"
+        Title="IdleNotificationWindow" Height="350" Width="300" Closing="IdleNotificationWindow_Closing">
+    <Grid x:Name="grid">
+        <Button x:Name="buttonIdleDiscardEntry" Content="Discard" HorizontalAlignment="Center" Margin="0,247,0,0" VerticalAlignment="Top" Click="buttonIdleDiscardEntry_Click"/>
+        <Button x:Name="buttonIdleContinueAsNew" Content="ContinueNew" HorizontalAlignment="Center" Margin="0,167,0,0" VerticalAlignment="Top" Click="buttonIdleContinueAsNew_Click"/>
+        <Button x:Name="buttonIdleContinueEntry" Content="Continue" HorizontalAlignment="Center" Margin="0,126,0,0" VerticalAlignment="Top" Click="buttonIdleContinueEntry_Click"/>
+        <Button x:Name="buttonIdleDiscardCont" Content="DiscardCont" HorizontalAlignment="Center" Margin="0,206,0,0" VerticalAlignment="Top" Click="buttonIdleDiscardCont_Click"/>
+        <Label x:Name="labelIdleMsg" Content="placeholder" HorizontalAlignment="Center" Margin="0,44,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>

@@ -1,0 +1,48 @@
+﻿<Window x:Class="t_t.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:t_t"
+        mc:Ignorable="d"
+        Title="t_t" Height="500" Width="500">
+    <StackPanel>
+        <Button x:Name="buttonDelete" Content="Delete" Click="buttonDelete_Click"/>
+        <Button x:Name="buttonStopStart" Content="Stop/Start" Click="buttonStopStart_Click"/>
+        <Button x:Name="buttonSettings" Content="Settings" Click="buttonSettings_Click"/>
+        <ListView x:Name="listViewHistory" Height="100" d:ItemsSource="{d:SampleData ItemCount=5}" >
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDown" />
+                    <EventSetter Event="PreviewMouseLeftButtonUp" Handler="ListViewItem_PreviewMouseLeftButtonUp" />
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+        <Label x:Name="labelTimerRunning" Content="Label"/>
+        <TextBox x:Name="textBoxField" TextWrapping="Wrap" Text="Field" Width="120"/>
+        <TextBox x:Name="textBoxSubject" TextWrapping="Wrap" Text="Subject" Width="120"/>
+        <TextBox x:Name="textBoxStage" TextWrapping="Wrap" Text="Stage" Width="120"/>
+        <DatePicker x:Name="dateTimePickerStarttimeCurrent"/>
+        <ListView x:Name="listView2" Height="100" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label x:Name="label12" Content="Label"/>
+        <ListView x:Name="listTest" Height="100" d:ItemsSource="{d:SampleData ItemCount=5} ">
+            <ListView.View>
+                <GridView >
+                    <GridViewColumn />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </StackPanel>
+
+</Window>

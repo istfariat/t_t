@@ -1,0 +1,26 @@
+﻿<Window x:Class="t_t.EditEntryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:t_t"
+        mc:Ignorable="d"
+        Title="EditEntryWindow" Height="300" Width="500"
+        Loaded="EditEntryWindow_Load"
+        Closing="Window_Closing">
+    <Grid>
+        <TextBox x:Name="textBoxFieldEdit" HorizontalAlignment="Left" Margin="40,71,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBoxDurationEdit" HorizontalAlignment="Left" Margin="273,190,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBoxSubjectEdit" HorizontalAlignment="Left" Margin="40,138,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBoxStageEdit" HorizontalAlignment="Left" Margin="40,190,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <DatePicker x:Name="dateTimePickerStarttimeEdit" HorizontalAlignment="Left" Margin="282,68,0,0" VerticalAlignment="Top" SelectedDateChanged="dateTimePickerStarttimeEdit_ValueChanged"/>
+        <DatePicker x:Name="dateTimePickerEndtimeEdit" HorizontalAlignment="Left" Margin="282,135,0,0" VerticalAlignment="Top" SelectedDateChanged="dateTimePickerEndtimeEdit_ValueChanged"/>
+        <Label Content="Field" HorizontalAlignment="Left" Margin="62,32,0,0" VerticalAlignment="Top"/>
+        <Label Content="Stage" HorizontalAlignment="Left" Margin="62,94,0,0" VerticalAlignment="Top"/>
+        <Label Content="Subject" HorizontalAlignment="Left" Margin="62,161,0,0" VerticalAlignment="Top"/>
+        <Label Content="Start date/time" HorizontalAlignment="Left" Margin="324,45,0,0" VerticalAlignment="Top"/>
+        <Label Content="End date/time" HorizontalAlignment="Left" Margin="314,107,0,0" VerticalAlignment="Top"/>
+        <Label Content="Duration" HorizontalAlignment="Left" Margin="295,164,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
