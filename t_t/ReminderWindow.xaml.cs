@@ -25,8 +25,6 @@ namespace t_t
         {
             InitializeComponent();
 
-
-            //System.Drawing.Rectangle workingRectangle = Screen.PrimaryScreen.WorkingArea;
             Point location = new Point(System.Windows.SystemParameters.PrimaryScreenWidth - this.Width, System.Windows.SystemParameters.PrimaryScreenHeight - this.Height);
             this.Left = location.X;
             this.Top = location.Y;
@@ -35,21 +33,6 @@ namespace t_t
             closeTimer.Tick += closeTimer_Tick;
             closeTimer.Start();
         }
-
-        //protected override bool ShowWithoutActivation { get { return true; } }
-
-        //protected override CreateParams CreateParams
-        //{
-        //    get
-        //    {
-        //        //make sure Top Most property on form is set to false
-        //        //otherwise this doesn't work
-        //        int WS_EX_TOPMOST = 0x00000008;
-        //        CreateParams cp = base.CreateParams;
-        //        cp.ExStyle |= WS_EX_TOPMOST;
-        //        return cp;
-        //    }
-        //}
 
         private void closeTimer_Tick(object sender, EventArgs a)
         {

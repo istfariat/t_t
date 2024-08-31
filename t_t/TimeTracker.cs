@@ -19,7 +19,8 @@ public class TimeTracker
 
     public static (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) currentEntry;
 
-    public static Settings UserSettings = UserProperties.CheckSettings();
+    //public static Settings UserSettings = UserProperties.CheckSettings();
+    
 
     public static System.Windows.Threading.DispatcherTimer mainTimer = new System.Windows.Threading.DispatcherTimer();
     public static System.Windows.Threading.DispatcherTimer reminderTimer = new System.Windows.Threading.DispatcherTimer();
@@ -27,8 +28,8 @@ public class TimeTracker
     public static System.Windows.Threading.DispatcherTimer thresholdTimer = new System.Windows.Threading.DispatcherTimer();
     public static System.Windows.Threading.DispatcherTimer checkWindowTimer = new System.Windows.Threading.DispatcherTimer();
 
-    public static string[] knownNames = new string[3] { "blender", "league of legends", "twitch" }; // placeholder
-    public static Dictionary<string, (string field, string project, string stage)> knownTitles = new Dictionary<string, (string field, string project, string stage)>();
+    //public static string[] knownNames = new string[3] { "blender", "league of legends", "twitch" }; // placeholder
+    //public static Dictionary<string, (string field, string project, string stage)> knownTitles = new Dictionary<string, (string field, string project, string stage)>();
 
 
     private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
@@ -51,36 +52,51 @@ public class TimeTracker
         mainTimer.Interval = TimeSpan.FromSeconds(0.1);
         checkWindowTimer.Interval = TimeSpan.FromSeconds(0.5);
 
-        reminderTimer.Interval = TimeSpan.FromMinutes(UserSettings.REMINDER_INTERVAL_MIN);
-        idleTimer.Interval = TimeSpan.FromMinutes(UserSettings.IDLE_INTERVAL_MIN);
-        thresholdTimer.Interval = TimeSpan.FromSeconds(UserSettings.THRESHOLD_INTERVAL_SEC);
+        reminderTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.REMINDER_INTERVAL_MIN);
+        idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
+        thresholdTimer.Interval = TimeSpan.FromSeconds(UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC);
 
-        knownTitles.Add("blender", ("3d", "", ""));
-        knownTitles.Add("league of legends", ("Procrastinating", "Gaming", ""));
-        knownTitles.Add("twitch", ("Procrastinating", "Watching", ""));
-        knownTitles.Add("visual studio", ("Programming", "", ""));
+        //knownTitles.Add("blender", ("3d", "", ""));
+        //knownTitles.Add("league of legends", ("Procrastinating", "Gaming", ""));
+        //knownTitles.Add("twitch", ("Procrastinating", "Watching", ""));
+        //knownTitles.Add("visual studio", ("Programming", "", ""));
 
         reminderTimer.Tick += reminderTimer_Tick;
         mainTimer.Tick += mainTimer_Tick;
         idleTimer.Tick += idleTimer_Tick;
         thresholdTimer.Tick += thresholdTimer_Tick;
         checkWindowTimer.Tick += checkWindowTimer_Tick;
+        UserProperties.SettingsChanged += updateSettings;
         
        
         //PlatformWin.ThresholdReached += CheckNewAutotime;
-        PlatformWin.ActiveWindowChanged += startAutoTimer;
+        //PlatformWin.ActiveWindowChanged += startAutoTimer;
 
-        if (UserSettings.ENABLE_AUTO_TIMER)
+        if (UserProperties.UserSettings.ENABLE_AUTO_TIMER)
         {
             checkWindowTimer.Start();
         }
+        else
+        {
+            checkWindowTimer.Stop();
+        }
+
+        
+    }
+
+
+    private static void updateSettings() 
+    {
+        UserProperties.UserSettings = UserProperties.CheckSettings();
     }
 
     private static void startAutoTimer(string windowTitle)
     {
+        if(windowTitle == null) { return; }
         windowTitle = windowTitle.ToLower();
         if (currentWindow != null && windowTitle.Contains(currentWindow)) return;
-        foreach (string k in knownTitles.Keys)
+        if (UserProperties.UserSettings.knownTitles == null) { return; }
+        foreach (string k in UserProperties.UserSettings.knownTitles.Keys)
         {
             currentWindow = k;
 
@@ -124,9 +140,9 @@ public class TimeTracker
 
         StartMainTimer();
         
-        currentEntry.field = knownTitles[currentWindow].field;
-        currentEntry.project = knownTitles[currentWindow].project;
-        currentEntry.stage = knownTitles[currentWindow].stage;
+        currentEntry.field = UserProperties.UserSettings.knownTitles[currentWindow][0];
+        currentEntry.project = UserProperties.UserSettings.knownTitles[currentWindow][1];
+        currentEntry.stage = UserProperties.UserSettings.knownTitles[currentWindow][2];
 
         lastActiveTitle = currentWindow;
 
@@ -190,8 +206,11 @@ public class TimeTracker
 
     static void reminderTimer_Tick(object sender, EventArgs a)
     {
-        if (UserSettings.ENABLE_REMINDER_TIMER)
+        if (UserProperties.UserSettings.ENABLE_REMINDER_TIMER)
             ReminderReached?.Invoke();
+
+        UserProperties.UserSettings.IDLE_INTERVAL_MIN = 10;
+        UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
     }
 
     
@@ -206,12 +225,12 @@ public class TimeTracker
     {
         if (PlatformWin.CheckIdle())
         {
-            int idleTemp = (TimeTracker.UserSettings.IDLE_INTERVAL_MIN) - (int)PlatformWin.idleTime;
+            int idleTemp = (UserProperties.UserSettings.IDLE_INTERVAL_MIN) - (int)PlatformWin.idleTime;
             if (idleTemp > 0)
                 idleTimer.Interval = TimeSpan.FromTicks(idleTemp);
             else
             {
-                idleTimer.Interval = TimeSpan.FromMinutes(TimeTracker.UserSettings.IDLE_INTERVAL_MIN);
+                idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
                 UserIdle?.Invoke();
                 idleTimer.Stop();
             }
@@ -232,7 +251,7 @@ public class TimeTracker
     {
         if (append)
         {
-            using (StreamWriter sw = new StreamWriter(TimeTracker.UserSettings.SaveDirectory, append))
+            using (StreamWriter sw = new StreamWriter(UserProperties.UserSettings.SaveDirectory, append))
             {
                 //sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n", currentEntry.startTime.ToString(), currentEntry.endTime.ToString(), TimeSpanToString(currentEntry.duration), currentEntry.field, currentEntry.project, currentEntry.stage);
                 string jsonString = JsonSerializer.Serialize(currentEntry, jsonOptions);
@@ -241,7 +260,7 @@ public class TimeTracker
         }
         else
         {
-            using (StreamWriter sw = new StreamWriter(TimeTracker.UserSettings.SaveDirectory, append))
+            using (StreamWriter sw = new StreamWriter(UserProperties.UserSettings.SaveDirectory, append))
             {
                 string jsonString;
                 foreach (var entry in history)
@@ -278,7 +297,7 @@ public class TimeTracker
             {
                 tempEntry.startTime = newDate;
 
-                if (TimeTracker.UserSettings.END_TIME_SHIFT)
+                if (UserProperties.UserSettings.END_TIME_SHIFT)
                 {
                     tempEntry.endTime = tempEntry.endTime.Add(tempEntry.duration);
                 }
@@ -322,11 +341,11 @@ public class TimeTracker
 
     public static void LoadEntry()
     {
-        if (!File.Exists(TimeTracker.UserSettings.SaveDirectory))
+        if (!File.Exists(UserProperties.UserSettings.SaveDirectory))
             return;
 
         //using (StreamReader sr = File.OpenText(TimeTracker.UserSettings.SaveDirectory))
-        using (StreamReader sr = new StreamReader(TimeTracker.UserSettings.SaveDirectory))
+        using (StreamReader sr = new StreamReader(UserProperties.UserSettings.SaveDirectory))
         {
             string s;
             (DateTime, DateTime, TimeSpan, string, string, string) jsonR;

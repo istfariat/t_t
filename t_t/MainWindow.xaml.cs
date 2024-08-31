@@ -24,29 +24,25 @@ namespace t_t
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
 
         public MainWindow()
         {
             InitializeComponent();
 
             UserProperties.CheckSettings();
-            Settings settings = UserProperties.CheckSettings();
+            //Settings settings = UserProperties.CheckSettings();
             TimeTracker.SortEntries();
             ShowHistory();
 
-            
-            TimeTracker.DefineTimers();
-            PlatformWin.DefineTimer();
-            //PlatformWin.ActivateWindowTrack();
 
+            TimeTracker.DefineTimers();
 
             TimeTracker.ReminderReached += reminderTimer_Tick;
             TimeTracker.UserIdle += ShowIdleWindow;
             TimeTracker.mainTimer.Tick += ShowRunningTime;
 
 
-            //PlatformWin.ActiveWindowChanged += ShowActiveWindow;
             TimeTracker.NewEntryAdded += ShowHistory;
             IdleNotificationWindow.DiscardTime += DiscardEntry;
             TimeTracker.AutoTimerStarted += UpdateControls;
@@ -57,8 +53,6 @@ namespace t_t
             TimeTracker.reminderTimer.Start();
 
             buttonDelete.Visibility = Visibility.Hidden;
-            //listView2.Columns.Add("Program", 400, HorizontalAlignment.Center);
-            
         }
 
 
@@ -102,12 +96,6 @@ namespace t_t
         }
 
 
-        void ShowActiveWindow(string WindowTitle) //move to timetracker.cs
-        {
-            label12.Content = WindowTitle;
-            listView2.Items.Add(WindowTitle);
-        }
-
         private void buttonStopStart_Click(object sender, EventArgs e)
         {
             TimeTracker.currentEntry.field = textBoxField.Text;
@@ -122,23 +110,13 @@ namespace t_t
             else
             {
                 TimeTracker.StartMainTimer();
-                //TimeTracker.currentEntry.field = textBoxField.Text;
-                //TimeTracker.currentEntry.project = textBoxSubject.Text;
-                //TimeTracker.currentEntry.stage = textBoxStage.Text;
                 buttonDelete.Visibility = Visibility.Visible;
             }
-        }
-
-        public ListView ListView1
-        {
-            get { return listViewHistory; }
-            set { listViewHistory = value; }
         }
 
         private void listViewHistory_Click(object sender, EventArgs a)
         {
             EditEntryWindow editWindow = new EditEntryWindow(this);
-            //editWindow.entryIndex = TimeTracker.history.Count - listViewHistory.SelectedIndex - 1;
             editWindow.entryIndex = listViewHistory.SelectedIndex;
             editWindow.Show();
         }
@@ -173,12 +151,7 @@ namespace t_t
             settingsWindow.Show();
         }
 
-        //private void Form1_Click(object sender, EventArgs e)
-        //{
-        //    ActiveControl = null;
-        //}
-
-
+        
         void reminderTimer_Tick()
         {
             ReminderWindow reminderWindow = new ReminderWindow();
@@ -204,23 +177,10 @@ namespace t_t
 
         public void ShowHistory()
         {
-            //listViewHistory.Clear();
             listViewHistory.ItemsSource = TimeTracker.history;
             
             TimeTracker.LoadEntry();
             listViewHistory.Items.Refresh();
-
-            //foreach (var field in TimeTracker.fields)
-            //    listViewHistory.Columns.Add(field, 100, HorizontalAlignment.Center);
-
-            //for (int i = TimeTracker.history.Count - 1; i >= 0; i--)
-            //{
-
-            //    listViewHistory.Items.Add(new ListViewItem(new string[] { TimeTracker.history[i].startTime.ToString(), TimeTracker.history[i].endTime.ToString(),
-            //                                                                        TimeTracker.history[i].duration.ToString(), TimeTracker.history[i].field,
-            //                                                                        TimeTracker.history[i].project, TimeTracker.history[i].stage }));
-            //}
-
         }
 
         #endregion

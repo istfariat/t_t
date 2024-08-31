@@ -20,8 +20,8 @@ namespace t_t
     public partial class IdleNotificationWindow : Window
     {
         private System.Windows.Threading.DispatcherTimer minuteTimer = new System.Windows.Threading.DispatcherTimer();
-        int idleDurationMinutes = TimeTracker.UserSettings.IDLE_INTERVAL_MIN;
-        DateTime idleSince = DateTime.Now - TimeSpan.FromMinutes((double)TimeTracker.UserSettings.IDLE_INTERVAL_MIN);
+        int idleDurationMinutes = UserProperties.UserSettings.IDLE_INTERVAL_MIN;
+        DateTime idleSince = DateTime.Now - TimeSpan.FromMinutes((double)UserProperties.UserSettings.IDLE_INTERVAL_MIN);
 
         public delegate void IdleNotification(double idleDurationMs, bool reset);
         public static event IdleNotification DiscardTime; 

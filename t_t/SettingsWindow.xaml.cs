@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,23 +29,35 @@ namespace t_t
         {
             InitializeComponent();
        
-            if (TimeTracker.UserSettings.ENABLE_AUTO_TIMER)
+            if (UserProperties.UserSettings.ENABLE_AUTO_TIMER)
                 checkBoxAutoTime.IsChecked = true;
-            if (TimeTracker.UserSettings.END_TIME_SHIFT)
+            if (UserProperties.UserSettings.END_TIME_SHIFT)
                 checkBoxEndTimeShift.IsChecked = true;
-            if (TimeTracker.UserSettings.ENABLE_REMINDER_TIMER)
+            if (UserProperties.UserSettings.ENABLE_REMINDER_TIMER)
                 checkBoxReminder.IsChecked = true;
 
-            textBoxSavePath.Text = TimeTracker.UserSettings.SaveDirectory;
-            numericUpDownReminder.Text = TimeTracker.UserSettings.REMINDER_INTERVAL_MIN.ToString();
-            numericUpDownIdle.Text = TimeTracker.UserSettings.IDLE_INTERVAL_MIN.ToString();
-            numericUpDownThreshold.Text = TimeTracker.UserSettings.THRESHOLD_INTERVAL_SEC.ToString();
+            textBoxSavePath.Text = UserProperties.UserSettings.SaveDirectory;
+            numericUpDownReminder.Text = UserProperties.UserSettings.REMINDER_INTERVAL_MIN.ToString();
+            numericUpDownIdle.Text = UserProperties.UserSettings.IDLE_INTERVAL_MIN.ToString();
+            numericUpDownThreshold.Text = UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC.ToString();
 
             DataObject.AddPastingHandler(numericUpDownReminder, onPaste);
             DataObject.AddPastingHandler(numericUpDownIdle, onPaste);
             DataObject.AddPastingHandler(numericUpDownThreshold, onPaste);
+
+            listViewTriggerList.ItemsSource = UserProperties.UserSettings.knownTitles;
+
+            UserProperties.SettingsChanged += updateSettings;
         }
 
+
+        private static void updateSettings()
+        {
+            UserProperties.UserSettings = UserProperties.CheckSettings();
+        }
+
+
+        //private static Settings UserSettings = UserProperties.CheckSettings();
 
         //private void checkBoxAutoTime_CheckedChanged(object sender, EventArgs e)
         //{
@@ -145,42 +158,58 @@ namespace t_t
 
         private void buttonSaveSettings_Click(object sender, EventArgs e)
         {
-            TimeTracker.UserSettings.THRESHOLD_INTERVAL_SEC = Convert.ToInt32(numericUpDownThreshold.Text);
-            TimeTracker.UserSettings.REMINDER_INTERVAL_MIN = Convert.ToInt32(numericUpDownReminder.Text);
-            TimeTracker.UserSettings.IDLE_INTERVAL_MIN = Convert.ToInt32(numericUpDownIdle.Text);
-            TimeTracker.UserSettings.SaveDirectory = textBoxSavePath.Text;
+            UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC = Convert.ToInt32(numericUpDownThreshold.Text);
+            UserProperties.UserSettings.REMINDER_INTERVAL_MIN = Convert.ToInt32(numericUpDownReminder.Text);
+            UserProperties.UserSettings.IDLE_INTERVAL_MIN = Convert.ToInt32(numericUpDownIdle.Text);
+            UserProperties.UserSettings.SaveDirectory = textBoxSavePath.Text;
 
             if (checkBoxAutoTime.IsChecked == true)
             {
-                TimeTracker.UserSettings.ENABLE_AUTO_TIMER = true;
+                UserProperties.UserSettings.ENABLE_AUTO_TIMER = true;
                 TimeTracker.checkWindowTimer.Start();
             }
             else
             {
-                TimeTracker.UserSettings.ENABLE_AUTO_TIMER = false;
+                UserProperties.UserSettings.ENABLE_AUTO_TIMER = false;
                 TimeTracker.checkWindowTimer.Stop();
             }
             
             if (checkBoxEndTimeShift.IsChecked == true)
             {
-                TimeTracker.UserSettings.END_TIME_SHIFT = true;
+                UserProperties.UserSettings.END_TIME_SHIFT = true;
             }
             else
             {
-                TimeTracker.UserSettings.END_TIME_SHIFT = false;
+                UserProperties.UserSettings.END_TIME_SHIFT = false;
             }
 
             if (checkBoxReminder.IsChecked == true)
             {
-                TimeTracker.UserSettings.ENABLE_REMINDER_TIMER = true;
+                UserProperties.UserSettings.ENABLE_REMINDER_TIMER = true;
             }
             else
             {
-                TimeTracker.UserSettings.ENABLE_REMINDER_TIMER = false;
+                UserProperties.UserSettings.ENABLE_REMINDER_TIMER = false;
             }
             
-            UserProperties.UpdateSettingsFile(TimeTracker.UserSettings);
+            UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
 
         }
+
+        private void buttonTriggerAdd_Click(object sender, RoutedEventArgs e)
+        {
+            UserProperties.AddTrigger(textBoxTriggerName.Text, new string[] { textBoxTriggerField.Text, textBoxTriggerProject.Text, textBoxTriggerStage.Text });
+            //UserProperties.UserSettings = UserProperties.CheckSettings();
+
+            listViewTriggerList.ItemsSource = UserProperties.UserSettings.knownTitles;
+            listViewTriggerList.Items.Refresh();
+            
+            textBoxTriggerName.Text = string.Empty;
+            textBoxTriggerField.Text = string.Empty;
+            textBoxTriggerProject.Text = string.Empty;
+            textBoxTriggerStage.Text = string.Empty;
+        }
     }
+
+    
 }
