@@ -16,13 +16,14 @@ public class Settings
     public  int THRESHOLD_INTERVAL_SEC { get; set; }
     public  bool ENABLE_AUTO_TIMER { get; set; }
     public  bool END_TIME_SHIFT { get; set; }
+    public bool ENABLE_MINI_TIMER { get; set; }
     public Dictionary<string, string[]>? knownTitles { get; set;}
 }
 
 public class UserProperties
 {
-    public delegate void TrackerHandler();
-    public static event TrackerHandler SettingsChanged;
+    //public delegate void TrackerHandler();
+    //public static event TrackerHandler SettingsChanged;
     
     private static string currentDir = Environment.CurrentDirectory;
     
@@ -35,6 +36,7 @@ public class UserProperties
         THRESHOLD_INTERVAL_SEC = 5,
         ENABLE_AUTO_TIMER = false,
         END_TIME_SHIFT = false,
+        ENABLE_MINI_TIMER = false,
         knownTitles = new Dictionary<string, string[]> {
             { "blender", new string[] {"3d", "", ""} } ,
             { "league of legends",  new string[] {"Procrastinating", "Gaming", "" } },
@@ -79,7 +81,7 @@ public class UserProperties
     public static void UpdateSettingsFile(Settings newConfig)
     {
         File.WriteAllText(currentDir + @"\Settings.json", JsonSerializer.Serialize(newConfig));
-        SettingsChanged?.Invoke();
+        EventList.raise_SettingsChanged();
     }
     
     public static void AddTrigger(string triggerWord, string[] entryName)

@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="EditEntryWindow" Height="300" Width="500"
         Loaded="EditEntryWindow_Load"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+       >
     <Grid>
         <TextBox x:Name="textBoxFieldEdit" HorizontalAlignment="Left" Margin="40,71,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="textBoxDurationEdit" HorizontalAlignment="Left" Margin="273,190,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>

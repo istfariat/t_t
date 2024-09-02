@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:t_t"
         mc:Ignorable="d"
-        Title="IdleNotificationWindow" Height="350" Width="300" Closing="IdleNotificationWindow_Closing">
+        Title="IdleNotificationWindow" Height="350" Width="300" 
+        Closing="IdleNotificationWindow_Closing"
+        >
     <Grid x:Name="grid">
         <Button x:Name="buttonIdleDiscardEntry" Content="Discard" HorizontalAlignment="Center" Margin="0,247,0,0" VerticalAlignment="Top" Click="buttonIdleDiscardEntry_Click"/>
         <Button x:Name="buttonIdleContinueAsNew" Content="ContinueNew" HorizontalAlignment="Center" Margin="0,167,0,0" VerticalAlignment="Top" Click="buttonIdleContinueAsNew_Click"/>

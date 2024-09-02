@@ -22,9 +22,6 @@ namespace t_t
         private System.Windows.Threading.DispatcherTimer minuteTimer = new System.Windows.Threading.DispatcherTimer();
         int idleDurationMinutes = UserProperties.UserSettings.IDLE_INTERVAL_MIN;
         DateTime idleSince = DateTime.Now - TimeSpan.FromMinutes((double)UserProperties.UserSettings.IDLE_INTERVAL_MIN);
-
-        public delegate void IdleNotification(double idleDurationMs, bool reset);
-        public static event IdleNotification DiscardTime; 
         
         public IdleNotificationWindow()
         {
@@ -58,7 +55,7 @@ namespace t_t
 
         private void buttonIdleDiscardEntry_Click(object sender, EventArgs e)
         {
-            DiscardTime(getIdleSeconds(), true);
+            EventList.raise_DiscardTime(getIdleSeconds(), true);
             this.Close();
         }
 
@@ -73,7 +70,7 @@ namespace t_t
 
         private void buttonIdleDiscardCont_Click(object sender, EventArgs e)
         {
-            DiscardTime(getIdleSeconds(), false);
+            EventList.raise_DiscardTime(getIdleSeconds(), false);
             TimeTracker.StartMainTimer();
             this.Close();
         }

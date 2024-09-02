@@ -42,6 +42,9 @@ namespace t_t
         private void buttonStartFromReminder_Click(object sender, EventArgs e)
         {
             WindowClose();
+            TimeTracker.currentEntry.field = "";
+            TimeTracker.currentEntry.project = "";
+            TimeTracker.currentEntry.stage = "";
             TimeTracker.StartMainTimer();
         }
 

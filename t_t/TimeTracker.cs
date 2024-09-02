@@ -17,6 +17,11 @@ public class TimeTracker
     private static string lastActiveTitle = null;
 
 
+    //private System.Windows.Threading.DispatcherTimer minuteTimer = new System.Windows.Threading.DispatcherTimer();
+    //int idleDurationMinutes = UserProperties.UserSettings.IDLE_INTERVAL_MIN;
+    //public static DateTime idleSince = DateTime.Now - TimeSpan.FromMinutes((double)UserProperties.UserSettings.IDLE_INTERVAL_MIN);
+
+
     public static (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) currentEntry;
 
     //public static Settings UserSettings = UserProperties.CheckSettings();
@@ -37,13 +42,13 @@ public class TimeTracker
         IncludeFields = true,
     };
 
-    public delegate void TrackerHandler();
-    public static event TrackerHandler UserIdle;
-    public static event TrackerHandler NewEntryAdded;
-    public static event TrackerHandler AutoTimerStarted;
-    public static event TrackerHandler ReminderReached;
-    public static event TrackerHandler CheckWindow;
-    public static event TrackerHandler MainTimerStopped;
+    //public delegate void TrackerHandler();
+    //public static event TrackerHandler UserIdle;
+    //public static event TrackerHandler NewEntryAdded;
+    //public static event TrackerHandler AutoTimerStarted;
+    //public static event TrackerHandler ReminderReached;
+    //public static event TrackerHandler CheckWindow;
+    //public static event TrackerHandler MainTimerStopped;
 
 
 
@@ -66,9 +71,12 @@ public class TimeTracker
         idleTimer.Tick += idleTimer_Tick;
         thresholdTimer.Tick += thresholdTimer_Tick;
         checkWindowTimer.Tick += checkWindowTimer_Tick;
-        UserProperties.SettingsChanged += updateSettings;
-        
-       
+        EventList.SettingsChanged += updateSettings;
+
+        //minuteTimer.Interval = TimeSpan.FromMinutes(1); //1 min
+        //minuteTimer.Tick += IdleMsgUpdate;
+
+
         //PlatformWin.ThresholdReached += CheckNewAutotime;
         //PlatformWin.ActiveWindowChanged += startAutoTimer;
 
@@ -146,8 +154,8 @@ public class TimeTracker
 
         lastActiveTitle = currentWindow;
 
-        AutoTimerStarted?.Invoke();
         thresholdTimer.Stop();
+        EventList.raise_AutoTimerStarted();
     }
 
 
@@ -194,7 +202,7 @@ public class TimeTracker
             SaveEntry(true);
         }
 
-        MainTimerStopped?.Invoke();
+        EventList.raise_MainTimerStopped();
 
     }
 
@@ -207,7 +215,7 @@ public class TimeTracker
     static void reminderTimer_Tick(object sender, EventArgs a)
     {
         if (UserProperties.UserSettings.ENABLE_REMINDER_TIMER)
-            ReminderReached?.Invoke();
+            EventList.raise_ReminderReached();
 
         UserProperties.UserSettings.IDLE_INTERVAL_MIN = 10;
         UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
@@ -231,7 +239,7 @@ public class TimeTracker
             else
             {
                 idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
-                UserIdle?.Invoke();
+                EventList.raise_UserIdle();
                 idleTimer.Stop();
             }
         }
@@ -271,7 +279,7 @@ public class TimeTracker
                 }
             }
         }
-        NewEntryAdded?.Invoke();
+        EventList.raise_HistoryChanged(true);
     }
 
     public static void EditDateTime(int sourceEntryIndex, DateTime newDate, bool isEndTime)

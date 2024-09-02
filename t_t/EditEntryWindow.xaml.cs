@@ -68,7 +68,7 @@ namespace t_t
             TimeTracker.history[entryIndex] = tempEntry;
 
             TimeTracker.SaveEntry();
-            mainForm.ShowHistory();
+            mainForm.ShowHistory(false);
         }
 
         private void EditEntryWindow_Load(object sender, EventArgs e)

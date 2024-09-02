@@ -5,7 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:t_t"
         mc:Ignorable="d"
-        Title="ReminderWindow" Height="150" Width="200" Topmost="True" ShowActivated="False">
+        Title="ReminderWindow" 
+        Height="150" Width="200" 
+        Topmost="True" 
+        ShowActivated="False"
+        WindowStyle="ToolWindow"
+        >
     <Grid>
         <Label Content="Don't forget to track time!" HorizontalAlignment="Center" Margin="0,21,0,0" VerticalAlignment="Top"/>
         <Button Content="Start tracking" HorizontalAlignment="Center" Margin="0,67,0,0" VerticalAlignment="Top" Click="buttonStartFromReminder_Click" Height="41" Width="131"/>

@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:t_t"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="450" Width="800">
+        Title="SettingsWindow" Height="450" Width="800"
+       >
 
     <TabControl Grid.Row="1">
         <TabItem Header="Main">
@@ -25,6 +26,7 @@
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
                 <TextBox x:Name="textBoxSavePath" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="TextBox" VerticalAlignment="Center" Width="120" Grid.Column="3"/>
@@ -32,20 +34,23 @@
                 <CheckBox x:Name="checkBoxAutoTime" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1"/>
                 <CheckBox x:Name="checkBoxEndTimeShift" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="2"/>
                 <CheckBox x:Name="checkBoxReminder" HorizontalAlignment="Center"  VerticalAlignment="Center" Grid.Column="3" Grid.Row="3"/>
+                <CheckBox x:Name="checkBoxMiniTimer" HorizontalAlignment="Center"  VerticalAlignment="Center" Grid.Column="3" Grid.Row="4"/>
 
-                <TextBox x:Name="numericUpDownReminder" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" Grid.Column="3" Grid.Row="4" AllowDrop="False" TextAlignment="Right" PreviewTextInput="numericInput" MaxLength="3"/>
-                <TextBox x:Name="numericUpDownIdle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" Grid.Column="3" Grid.Row="5" AllowDrop="False" TextAlignment="Right"  PreviewTextInput="numericInput" MaxLength="3"/>
-                <TextBox x:Name="numericUpDownThreshold" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" Grid.Column="3" Grid.Row="6" AllowDrop="False" TextAlignment="Right"  PreviewTextInput="numericInput" MaxLength="3"/>
+                <TextBox x:Name="numericUpDownReminder" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" AllowDrop="False" TextAlignment="Right" PreviewTextInput="numericInput" MaxLength="3"/>
+                <TextBox x:Name="numericUpDownIdle" Grid.Column="3" Grid.Row="6" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" AllowDrop="False" TextAlignment="Right"  PreviewTextInput="numericInput" MaxLength="3"/>
+                <TextBox x:Name="numericUpDownThreshold" Grid.Column="3" Grid.Row="7" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="50" AllowDrop="False" TextAlignment="Right"  PreviewTextInput="numericInput" MaxLength="3"/>
 
-                <Label Content="Path to savefile" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Margin="73,0,0,0"/>
-                <Label Content="Enable autotimer" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Margin="68,0,0,0"/>
-                <Label Content="Shift endtime instead of changing duration" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="2"/>
-                <Label Content="Enable reminder to track time" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3" Margin="35,0,0,0"/>
-                <Label Content="Time between reminder to track time" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="4" Margin="15,0,0,0"/>
-                <Label Content="Time to consider idle" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="5" Margin="58,0,0,0"/>
-                <Label Content="Threshold for autotimer" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="2" Grid.Row="6" Margin="51,0,0,0"/>
+                <Label Content="Path to savefile" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Enable autotimer" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Shift endtime instead of changing duration" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Enable reminder to track time" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Enable mini timer" Grid.Column="2" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Time between reminder to track time" Grid.Column="2" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Time to consider idle" Grid.Column="2" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label Content="Threshold for autotimer" Grid.Column="2" Grid.Row="7" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                
                 <Button x:Name="buttonFileSelect" Grid.Column="3" Content="Select" HorizontalAlignment="Left" Margin="260,0,0,0" VerticalAlignment="Center" Click="buttonFileSelect_Click"/>
-                <Button Grid.Column="3" Content="Save" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Width="70" Click="buttonSaveSettings_Click"/>
+                <Button Grid.Column="3" Content="Save" HorizontalAlignment="Center" Grid.Row="8" VerticalAlignment="Center" Width="70" Click="buttonSaveSettings_Click"/>
 
 
 
@@ -54,15 +59,16 @@
         <TabItem Header="Autotimer">
             <Grid Background="#FFE5E5E5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="392*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Label x:Name="labelTriggerHint" Content="Label" HorizontalAlignment="Left" Margin="188,56,0,0" VerticalAlignment="Top"/>
-                <Grid Grid.Row="1">
+                <Label x:Name="labelTriggerHint" Content="Label" HorizontalAlignment="Left" Margin="178,56,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                <Grid Grid.ColumnSpan="2" Margin="0,135,0,135" Grid.RowSpan="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
@@ -78,7 +84,7 @@
                     <TextBox x:Name="textBoxTriggerStage" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" TextWrapping="Wrap" Width="120"/>
                     <Button x:Name="buttonTriggerAdd" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" Content="Button" Click="buttonTriggerAdd_Click"/>
                 </Grid>
-                <ListView x:Name="listViewTriggerList" Grid.Row="2">
+                <ListView x:Name="listViewTriggerList" Grid.Row="2" Grid.ColumnSpan="2">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn/>

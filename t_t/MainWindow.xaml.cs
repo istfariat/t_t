@@ -22,7 +22,7 @@ namespace t_t
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial  class MainWindow : Window
     {
 
 
@@ -33,21 +33,21 @@ namespace t_t
             UserProperties.CheckSettings();
             //Settings settings = UserProperties.CheckSettings();
             TimeTracker.SortEntries();
-            ShowHistory();
+            ShowHistory(false);
 
 
             TimeTracker.DefineTimers();
 
-            TimeTracker.ReminderReached += reminderTimer_Tick;
-            TimeTracker.UserIdle += ShowIdleWindow;
+            EventList.ReminderReached += reminderTimer_Tick;
+            EventList.UserIdle += ShowIdleWindow;
             TimeTracker.mainTimer.Tick += ShowRunningTime;
 
 
-            TimeTracker.NewEntryAdded += ShowHistory;
-            IdleNotificationWindow.DiscardTime += DiscardEntry;
-            TimeTracker.AutoTimerStarted += UpdateControls;
-            SettingsWindow.SaveFilePathChaged += ShowHistory;
-            TimeTracker.MainTimerStopped += ResetFields;
+            EventList.HistoryChanged += ShowHistory;
+            EventList.DiscardTime += DiscardEntry;
+            EventList.AutoTimerStarted += UpdateControls;
+            //SettingsWindow.SaveFilePathChaged += ShowHistory;
+            EventList.MainTimerStopped += ResetFields;
             TimeTracker.checkWindowTimer.Tick += testF;
 
             TimeTracker.reminderTimer.Start();
@@ -117,6 +117,7 @@ namespace t_t
         private void listViewHistory_Click(object sender, EventArgs a)
         {
             EditEntryWindow editWindow = new EditEntryWindow(this);
+            editWindow.Owner = this;
             editWindow.entryIndex = listViewHistory.SelectedIndex;
             editWindow.Show();
         }
@@ -148,6 +149,7 @@ namespace t_t
         private void buttonSettings_Click(object sender, EventArgs e)
         {
             SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
             settingsWindow.Show();
         }
 
@@ -155,6 +157,7 @@ namespace t_t
         void reminderTimer_Tick()
         {
             ReminderWindow reminderWindow = new ReminderWindow();
+            reminderWindow.Owner = this;
             reminderWindow.Show();
         }
 
@@ -162,7 +165,15 @@ namespace t_t
         private void ShowIdleWindow()
         {
             IdleNotificationWindow idleWindow = new IdleNotificationWindow();
+            idleWindow.Owner = this;
             idleWindow.Show();
+        }
+
+        public void ShowMiniTimerWindow()
+        {
+            MiniTimerWindow miniTimerWindow = new MiniTimerWindow();
+            miniTimerWindow.Owner = this;
+            miniTimerWindow.Show();
         }
 
 
@@ -175,7 +186,7 @@ namespace t_t
         #region Functions
 
 
-        public void ShowHistory()
+        public void ShowHistory(bool entryAded)
         {
             listViewHistory.ItemsSource = TimeTracker.history;
             

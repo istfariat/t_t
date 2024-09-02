@@ -35,6 +35,8 @@ namespace t_t
                 checkBoxEndTimeShift.IsChecked = true;
             if (UserProperties.UserSettings.ENABLE_REMINDER_TIMER)
                 checkBoxReminder.IsChecked = true;
+            if (UserProperties.UserSettings.ENABLE_MINI_TIMER)
+                checkBoxMiniTimer.IsChecked = true;
 
             textBoxSavePath.Text = UserProperties.UserSettings.SaveDirectory;
             numericUpDownReminder.Text = UserProperties.UserSettings.REMINDER_INTERVAL_MIN.ToString();
@@ -47,7 +49,7 @@ namespace t_t
 
             listViewTriggerList.ItemsSource = UserProperties.UserSettings.knownTitles;
 
-            UserProperties.SettingsChanged += updateSettings;
+            EventList.SettingsChanged += updateSettings;
         }
 
 
@@ -191,7 +193,15 @@ namespace t_t
             {
                 UserProperties.UserSettings.ENABLE_REMINDER_TIMER = false;
             }
-            
+            if (checkBoxMiniTimer.IsChecked == true)
+            {
+                UserProperties.UserSettings.ENABLE_MINI_TIMER = true;
+            }
+            else
+            {
+                UserProperties.UserSettings.ENABLE_MINI_TIMER = false;
+            }
+
             UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
 
         }
