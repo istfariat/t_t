@@ -24,14 +24,24 @@ namespace t_t
         {
             InitializeComponent();
 
-            TimeTracker.mainTimer.Tick += ShowRunningTime;
+            EventList.MainTimerTick += ShowRunningTime;
             EventList.CurrentEntryChanged += UpdateControls;
             EventList.MainTimerStopped += ResetFields;
+            EventList.MainTimerStarted += UpdateControls;
+            EventList.SettingsChanged += test;
+        }
+
+        private void test()
+        {
+            if (UserProperties.UserSettings.ENABLE_MINI_TIMER == false)
+            {
+                this.Close();
+            }
         }
 
         private void ResetFields()
         {
-            labelTimerRunningMini.Content = "00:00:00";
+            labelTimerRunningMini.Content = "--:--:--";
             textBoxFieldMini.Text = string.Empty;
             textBoxProjectMini.Text = string.Empty;
             textBoxStageMini.Text = string.Empty;
@@ -60,10 +70,17 @@ namespace t_t
             textBoxFieldMini.Text = TimeTracker.currentEntry.field;
             textBoxProjectMini.Text = TimeTracker.currentEntry.project;
             textBoxStageMini.Text = TimeTracker.currentEntry.stage;
-            labelTimerRunningMini.Content = "00:00:00";
+            if (!TimeTracker.mainTimer.IsEnabled)
+            {
+                labelTimerRunningMini.Content = "--:--:--";
+            }
+            else
+            {
+                ShowRunningTime();
+            }
         }
 
-        void ShowRunningTime(object sender, EventArgs a)
+        private void ShowRunningTime()
         {
             labelTimerRunningMini.Content = TimeTracker.TimeSpanToString(TimeTracker.currentEntry.duration);
         }

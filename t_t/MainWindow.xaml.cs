@@ -45,14 +45,28 @@ namespace t_t
 
             EventList.HistoryChanged += ShowHistory;
             EventList.DiscardTime += DiscardEntry;
-            EventList.AutoTimerStarted += UpdateControls;
+            //EventList.AutoTimerStarted += UpdateControls;   // ??????????????
             //SettingsWindow.SaveFilePathChaged += ShowHistory;
             EventList.MainTimerStopped += ResetFields;
             TimeTracker.checkWindowTimer.Tick += testF;
+            EventList.SettingsChanged += update_Settings;
+            EventList.MainTimerStarted += UpdateControls;
+            
 
             TimeTracker.reminderTimer.Start();
 
             buttonDelete.Visibility = Visibility.Hidden;
+        }
+
+        private void update_Settings()
+        {
+            if (UserProperties.UserSettings.ENABLE_MINI_TIMER == true)
+            {
+                MiniTimerWindow miniTimer = new MiniTimerWindow();
+                miniTimer.Owner = this;
+                miniTimer.Show();
+            }
+            
         }
 
 
@@ -78,7 +92,7 @@ namespace t_t
 
         private void ResetFields()
         {
-            labelTimerRunning.Content = "00:00:00";
+            labelTimerRunning.Content = "--:--:--";
             textBoxField.Text = string.Empty;
             textBoxSubject.Text = string.Empty;
             textBoxStage.Text = string.Empty;

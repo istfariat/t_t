@@ -31,7 +31,6 @@ public class PlatformWin
         public uint Time;
     }
 
-
     public static string GetActiveWindowTitle()
     {
         const int nChars = 256;

@@ -14,10 +14,11 @@ public class EventList
     public static event TrackerHandler MainTimerStopped;
     public static event TrackerHandler ReminderReached;
     public static event TrackerHandler UserIdle;
-    public static event TrackerHandler AutoTimerStarted;
+    //public static event TrackerHandler AutoTimerStarted;
     public static event TrackerHandler CheckWindow;
     public static event TrackerHandler SettingsChanged;
     public static event TrackerHandler CurrentEntryChanged;
+    public static event TrackerHandler MainTimerTick;
 
     public delegate void HistoryHandler(bool added);
     public static event HistoryHandler HistoryChanged;
@@ -46,10 +47,15 @@ public class EventList
         UserIdle?.Invoke();
     }
 
-    public static void raise_AutoTimerStarted()
+    public static void raise_MainTimerTick()
     {
-        AutoTimerStarted?.Invoke();
+        MainTimerTick?.Invoke();
     }
+
+    //public static void raise_AutoTimerStarted()
+    //{
+    //    AutoTimerStarted?.Invoke();
+    //}
 
     public static void raise_CheckWindow()
     {
@@ -75,6 +81,4 @@ public class EventList
     {
         DiscardTime?.Invoke(idleDurationMin, reset);
     }
-
-
 }

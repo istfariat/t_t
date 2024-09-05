@@ -42,16 +42,7 @@ public class TimeTracker
         IncludeFields = true,
     };
 
-    //public delegate void TrackerHandler();
-    //public static event TrackerHandler UserIdle;
-    //public static event TrackerHandler NewEntryAdded;
-    //public static event TrackerHandler AutoTimerStarted;
-    //public static event TrackerHandler ReminderReached;
-    //public static event TrackerHandler CheckWindow;
-    //public static event TrackerHandler MainTimerStopped;
-
-
-
+    
     public static void DefineTimers()
     {
         mainTimer.Interval = TimeSpan.FromSeconds(0.1);
@@ -60,22 +51,13 @@ public class TimeTracker
         reminderTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.REMINDER_INTERVAL_MIN);
         idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
         thresholdTimer.Interval = TimeSpan.FromSeconds(UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC);
-
-        //knownTitles.Add("blender", ("3d", "", ""));
-        //knownTitles.Add("league of legends", ("Procrastinating", "Gaming", ""));
-        //knownTitles.Add("twitch", ("Procrastinating", "Watching", ""));
-        //knownTitles.Add("visual studio", ("Programming", "", ""));
-
+        
         reminderTimer.Tick += reminderTimer_Tick;
         mainTimer.Tick += mainTimer_Tick;
         idleTimer.Tick += idleTimer_Tick;
         thresholdTimer.Tick += thresholdTimer_Tick;
         checkWindowTimer.Tick += checkWindowTimer_Tick;
         EventList.SettingsChanged += updateSettings;
-
-        //minuteTimer.Interval = TimeSpan.FromMinutes(1); //1 min
-        //minuteTimer.Tick += IdleMsgUpdate;
-
 
         //PlatformWin.ThresholdReached += CheckNewAutotime;
         //PlatformWin.ActiveWindowChanged += startAutoTimer;
@@ -88,8 +70,6 @@ public class TimeTracker
         {
             checkWindowTimer.Stop();
         }
-
-        
     }
 
 
@@ -146,21 +126,19 @@ public class TimeTracker
             StoptMainTimer();
         }
 
-        StartMainTimer();
+        
         
         currentEntry.field = UserProperties.UserSettings.knownTitles[currentWindow][0];
         currentEntry.project = UserProperties.UserSettings.knownTitles[currentWindow][1];
         currentEntry.stage = UserProperties.UserSettings.knownTitles[currentWindow][2];
 
+        StartMainTimer();
+
         lastActiveTitle = currentWindow;
 
         thresholdTimer.Stop();
-        EventList.raise_AutoTimerStarted();
+        //EventList.raise_AutoTimerStarted();
     }
-
-
-   
-
     
 
     #region mainTImer
@@ -168,6 +146,7 @@ public class TimeTracker
     static void mainTimer_Tick(object sender, EventArgs a)
     {
         currentEntry.duration = DateTime.Now - currentEntry.startTime;
+        EventList.raise_MainTimerTick();
     }
     
     public static void StartMainTimer()
@@ -194,8 +173,6 @@ public class TimeTracker
 
         currentEntry.duration = currentEntry.endTime - currentEntry.startTime;
 
-
-
         if (!deleteEntry)
         {
             history.Add(currentEntry);
@@ -203,7 +180,6 @@ public class TimeTracker
         }
 
         EventList.raise_MainTimerStopped();
-
     }
 
 
@@ -220,9 +196,6 @@ public class TimeTracker
         UserProperties.UserSettings.IDLE_INTERVAL_MIN = 10;
         UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
     }
-
-    
-    
 
     static void idleTimer_Tick(object sender, EventArgs a)
     {

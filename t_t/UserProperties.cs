@@ -22,9 +22,6 @@ public class Settings
 
 public class UserProperties
 {
-    //public delegate void TrackerHandler();
-    //public static event TrackerHandler SettingsChanged;
-    
     private static string currentDir = Environment.CurrentDirectory;
     
     public static Settings UserSettings = new Settings()
@@ -43,7 +40,6 @@ public class UserProperties
             {"twitch",  new string[]{"Procrastinating", "Watching", "" } } ,
             {"visual studio", new string[] {"Programming", "", ""} } 
             }
-        
     };
     
 
@@ -64,8 +60,6 @@ public class UserProperties
 
         using (StreamReader sr = new StreamReader(currentDir + @"\Settings.json"))
         {
-            
-
             string jsonR = sr.ReadToEnd();
 
 
@@ -74,7 +68,6 @@ public class UserProperties
             //test = UserSettings.SaveDirectory;
 
             return UserSettings;
-            
         }
     }
 
@@ -91,6 +84,7 @@ public class UserProperties
             {
                 return; //error tooltip?
             }
+
         UserSettings.knownTitles.Add(triggerWord, entryName);
         UpdateSettingsFile(UserSettings);
         UserSettings = CheckSettings();
