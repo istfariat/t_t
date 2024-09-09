@@ -20,26 +20,33 @@ namespace t_t
     /// </summary>
     public partial class EditEntryWindow : Window
     {
-        public EditEntryWindow()
-        {
-            InitializeComponent();
+        //public EditEntryWindow()
+        //{
+        //    InitializeComponent();
 
-            textBoxFieldEdit.Text = TimeTracker.history[entryIndex].field;
-            textBoxSubjectEdit.Text = TimeTracker.history[entryIndex].project;
-            textBoxStageEdit.Text = TimeTracker.history[entryIndex].stage;
+        //    textBoxFieldEdit.Text = entryToEdit.field;
+        //    textBoxSubjectEdit.Text = entryToEdit.project;
+        //    textBoxStageEdit.Text = entryToEdit.stage;
             
-        }
+        //}
 
-        public int entryIndex;
-        private (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry;
+        public TimeEntry entryToEdit;
+        //public int entryIndex;
+        //private (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry;
 
         private MainWindow mainForm = null;
 
         public EditEntryWindow(Window callingWindow)
         {
             mainForm = callingWindow as MainWindow;
-            InitializeComponent();            
+            InitializeComponent();
+
+            //textBoxFieldEdit.Text = entryToEdit.field;
+            //textBoxSubjectEdit.Text = entryToEdit.project;
+            //textBoxStageEdit.Text = entryToEdit.stage;
         }
+
+        
 
         //private void textBoxFieldEdit_LostFocus(object sender, EventArgs e)
         //{
@@ -60,54 +67,56 @@ namespace t_t
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            tempEntry.field = textBoxFieldEdit.Text;
-            tempEntry.project = textBoxSubjectEdit.Text;
-            tempEntry.stage = textBoxStageEdit.Text;
+
+            entryToEdit.edit_Field(textBoxFieldEdit.Text);
+            entryToEdit.edit_Project(textBoxSubjectEdit.Text);
+            entryToEdit.edit_Stage(textBoxStageEdit.Text);
 
 
-            TimeTracker.history[entryIndex] = tempEntry;
-
-            TimeTracker.SaveEntry();
-            mainForm.ShowHistory(false);
+            
+            //TimeTracker.SaveEntry();
+            mainForm.ShowHistory(false); //???????????????????????????????????????
         }
 
         private void EditEntryWindow_Load(object sender, EventArgs e)
         {
-            tempEntry = TimeTracker.history[entryIndex];
-
-
-            textBoxFieldEdit.Text = tempEntry.field;
-            textBoxSubjectEdit.Text = tempEntry.project;
-            textBoxStageEdit.Text = tempEntry.stage;
-            dateTimePickerStarttimeEdit.SelectedDate = tempEntry.startTime;
-            dateTimePickerEndtimeEdit.SelectedDate = tempEntry.endTime;
-            textBoxDurationEdit.Text = tempEntry.duration.ToString();
+            
+            textBoxFieldEdit.Text = entryToEdit.field;
+            textBoxSubjectEdit.Text = entryToEdit.project;
+            textBoxStageEdit.Text = entryToEdit.stage;
+            dateTimePickerStarttimeEdit.SelectedDate = entryToEdit.startTime;
+            dateTimePickerEndtimeEdit.SelectedDate = entryToEdit.endTime;
+            textBoxDurationEdit.Text = entryToEdit.duration.ToString();
         }
 
         private void dateTimePickerStarttimeEdit_ValueChanged(object sender, EventArgs e)
         {
+            entryToEdit.edit_StartTime(dateTimePickerStarttimeEdit.SelectedDate.Value, UserProperties.UserSettings.END_TIME_SHIFT);
+
             //tempEntry.startTime = dateTimePickerStarttimeEdit.Value;
             //tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
             //textBoxDurationEdit.Text = tempEntry.duration.ToString();
 
-            TimeTracker.EditDateTime(entryIndex, dateTimePickerStarttimeEdit.SelectedDate.Value, false);
-            tempEntry.startTime = TimeTracker.history[entryIndex].startTime;
-            tempEntry.endTime = TimeTracker.history[entryIndex].endTime;
-            tempEntry.duration = TimeTracker.history[entryIndex].duration;
-            textBoxDurationEdit.Text = tempEntry.duration.ToString();
+            //TimeTracker.EditDateTime(entryIndex, dateTimePickerStarttimeEdit.SelectedDate.Value, false);
+            //tempEntry.startTime = TimeTracker.history[entryIndex].startTime;
+            //tempEntry.endTime = TimeTracker.history[entryIndex].endTime;
+            //tempEntry.duration = TimeTracker.history[entryIndex].duration;
+            textBoxDurationEdit.Text = entryToEdit.duration.ToString();
         }
 
         private void dateTimePickerEndtimeEdit_ValueChanged(object sender, EventArgs e)
         {
+            entryToEdit.edit_EndTime(dateTimePickerEndtimeEdit.SelectedDate.Value);
+            
             //tempEntry.endTime = dateTimePickerEndtimeEdit.Value;
             //tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
             //textBoxDurationEdit.Text = tempEntry.duration.ToString();
 
-            TimeTracker.EditDateTime(entryIndex, dateTimePickerEndtimeEdit.SelectedDate.Value, true);
-            tempEntry.startTime = TimeTracker.history[entryIndex].startTime;
-            tempEntry.endTime = TimeTracker.history[entryIndex].endTime;
-            tempEntry.duration = TimeTracker.history[entryIndex].duration;
-            textBoxDurationEdit.Text = tempEntry.duration.ToString();
+            //TimeTracker.EditDateTime(entryIndex, dateTimePickerEndtimeEdit.SelectedDate.Value, true);
+            //tempEntry.startTime = TimeTracker.history[entryIndex].startTime;
+            //tempEntry.endTime = TimeTracker.history[entryIndex].endTime;
+            //tempEntry.duration = TimeTracker.history[entryIndex].duration;
+            textBoxDurationEdit.Text = entryToEdit.duration.ToString();
         }
 
         

@@ -6,15 +6,18 @@ using System.Text;
 using System.Text.Json;
 using t_t;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 public class TimeTracker
 {
 
-    public static List<(DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage)> history = new List<(DateTime, DateTime, TimeSpan, string, string, string)>();
+    //public static List<(DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage)> history = new List<(DateTime, DateTime, TimeSpan, string, string, string)>();
+    public static List<TimeEntry> history = new List<TimeEntry>();
     public static string[] fields = new string[6] { "Time started:\t", "Time ended:\t", "Duration:\t", "Field:\t\t", "Project:\t", "Stage:\t\t" };
-    private static string currentWindow = null;
-    private static string lastAutoTitle = null;
-    private static string lastActiveTitle = null;
+    //private static string currentWindowTitleTrigger = null;
+    //private static string lastAutoTitle = null;
+    private static string runningEntryWindowTitle = null;
+    private static string prevThrTriggered = null;
 
 
     //private System.Windows.Threading.DispatcherTimer minuteTimer = new System.Windows.Threading.DispatcherTimer();
@@ -22,7 +25,11 @@ public class TimeTracker
     //public static DateTime idleSince = DateTime.Now - TimeSpan.FromMinutes((double)UserProperties.UserSettings.IDLE_INTERVAL_MIN);
 
 
-    public static (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) currentEntry;
+    //public static (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) currentEntry;
+
+    public static TimeEntry runningEntry = null;
+    public static TimeSpan runningDuration = new TimeSpan();
+    private static string[] tempEntry = new string[3];
 
     //public static Settings UserSettings = UserProperties.CheckSettings();
     
@@ -47,20 +54,18 @@ public class TimeTracker
     {
         mainTimer.Interval = TimeSpan.FromSeconds(0.1);
         checkWindowTimer.Interval = TimeSpan.FromSeconds(0.5);
-
+        thresholdTimer.Interval = TimeSpan.FromSeconds(UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC);
         reminderTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.REMINDER_INTERVAL_MIN);
         idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
-        thresholdTimer.Interval = TimeSpan.FromSeconds(UserProperties.UserSettings.THRESHOLD_INTERVAL_SEC);
         
-        reminderTimer.Tick += reminderTimer_Tick;
         mainTimer.Tick += mainTimer_Tick;
-        idleTimer.Tick += idleTimer_Tick;
-        thresholdTimer.Tick += thresholdTimer_Tick;
         checkWindowTimer.Tick += checkWindowTimer_Tick;
+        thresholdTimer.Tick += thresholdTimer_Tick;
+        reminderTimer.Tick += reminderTimer_Tick;
+        idleTimer.Tick += idleTimer_Tick;
+        
         EventList.SettingsChanged += updateSettings;
-
-        //PlatformWin.ThresholdReached += CheckNewAutotime;
-        //PlatformWin.ActiveWindowChanged += startAutoTimer;
+        EventList.HistoryChanged += SaveEntry;
 
         if (UserProperties.UserSettings.ENABLE_AUTO_TIMER)
         {
@@ -72,129 +77,16 @@ public class TimeTracker
         }
     }
 
-
-    private static void updateSettings() 
-    {
-        UserProperties.UserSettings = UserProperties.CheckSettings();
-    }
-
-    private static void startAutoTimer(string windowTitle)
-    {
-        if(windowTitle == null) { return; }
-        windowTitle = windowTitle.ToLower();
-        if (currentWindow != null && windowTitle.Contains(currentWindow)) return;
-        if (UserProperties.UserSettings.knownTitles == null) { return; }
-        foreach (string k in UserProperties.UserSettings.knownTitles.Keys)
-        {
-            currentWindow = k;
-
-            if (windowTitle.Contains(k))
-            {
-                if (!mainTimer.IsEnabled)
-                {
-                    thresholdTimer.Start();
-                    return;
-                }
-                if (lastActiveTitle == k)
-                {
-                    thresholdTimer.Stop();
-                    return;
-                }
-                
-                thresholdTimer.Start();
-                //lastAutoTitle = k;
-                //lastActiveTitle = k;
-                //break;
-                return;
-            }
-        }
-         
-        thresholdTimer.Stop();
-        //if (currentWindow == windowTitle) return;
-        currentWindow = windowTitle;
-         
-    }
-    private static void checkWindowTimer_Tick(object sender, EventArgs a)
-    {
-        startAutoTimer(PlatformWin.GetActiveWindowTitle());
-    }
-
-    private static void thresholdTimer_Tick(object sender, EventArgs a)
-    {
-        if (mainTimer.IsEnabled)
-        {
-            StoptMainTimer();
-        }
-
-        
-        
-        currentEntry.field = UserProperties.UserSettings.knownTitles[currentWindow][0];
-        currentEntry.project = UserProperties.UserSettings.knownTitles[currentWindow][1];
-        currentEntry.stage = UserProperties.UserSettings.knownTitles[currentWindow][2];
-
-        StartMainTimer();
-
-        lastActiveTitle = currentWindow;
-
-        thresholdTimer.Stop();
-        //EventList.raise_AutoTimerStarted();
-    }
-    
-
-    #region mainTImer
-
     static void mainTimer_Tick(object sender, EventArgs a)
     {
-        currentEntry.duration = DateTime.Now - currentEntry.startTime;
+        runningDuration = DateTime.Now - runningEntry.startTime;
         EventList.raise_MainTimerTick();
     }
-    
-    public static void StartMainTimer()
-    {
-
-
-        reminderTimer.Stop();
-        mainTimer.Start();
-        idleTimer.Start();
-
-        currentEntry.startTime = DateTime.Now;
-    }
-
-    public static void StoptMainTimer(bool deleteEntry = false, double idleTimeInSeconds = 0)
-    {
-        mainTimer.Stop();
-        idleTimer.Stop();
-        reminderTimer.Start();
-        lastAutoTitle = "";
-
-        if (idleTimeInSeconds > 0)
-            currentEntry.endTime = DateTime.Now - TimeSpan.FromSeconds(idleTimeInSeconds);
-        else currentEntry.endTime = DateTime.Now;
-
-        currentEntry.duration = currentEntry.endTime - currentEntry.startTime;
-
-        if (!deleteEntry)
-        {
-            history.Add(currentEntry);
-            SaveEntry(true);
-        }
-
-        EventList.raise_MainTimerStopped();
-    }
-
-
-
-    #endregion
-
-    #region secondaryTimers
 
     static void reminderTimer_Tick(object sender, EventArgs a)
     {
         if (UserProperties.UserSettings.ENABLE_REMINDER_TIMER)
             EventList.raise_ReminderReached();
-
-        UserProperties.UserSettings.IDLE_INTERVAL_MIN = 10;
-        UserProperties.UpdateSettingsFile(UserProperties.UserSettings);
     }
 
     static void idleTimer_Tick(object sender, EventArgs a)
@@ -206,9 +98,12 @@ public class TimeTracker
     {
         if (PlatformWin.CheckIdle())
         {
-            int idleTemp = (UserProperties.UserSettings.IDLE_INTERVAL_MIN) - (int)PlatformWin.idleTime;
+            var idleTemp = (int)(TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN).TotalSeconds - TimeSpan.FromTicks((int)PlatformWin.idleTime).TotalSeconds);
             if (idleTemp > 0)
-                idleTimer.Interval = TimeSpan.FromTicks(idleTemp);
+            { 
+                idleTimer.Interval = TimeSpan.FromSeconds(idleTemp); 
+                idleTimer.Start();
+            }
             else
             {
                 idleTimer.Interval = TimeSpan.FromMinutes(UserProperties.UserSettings.IDLE_INTERVAL_MIN);
@@ -218,7 +113,204 @@ public class TimeTracker
         }
     }
 
+    private static void checkWindowTimer_Tick(object sender, EventArgs a)
+    {
+        tryStartThresholdTimer(PlatformWin.GetActiveWindowTitle());
+    }
+
+    //private static void tryStartAutoTimer(string windowTitle)
+    //{
+    //    if (windowTitle == null) { return; }
+    //    windowTitle = windowTitle.ToLower();
+    //    if (currentWindowTitleTrigger != null && windowTitle.Contains(currentWindowTitleTrigger)) return;
+    //    if (UserProperties.UserSettings.knownTitles == null) { return; }
+    //    foreach (string k in UserProperties.UserSettings.knownTitles.Keys)
+    //    {
+    //        currentWindowTitleTrigger = k;
+
+    //        if (windowTitle.Contains(k))
+    //        {
+    //            if (!mainTimer.IsEnabled)
+    //            {
+    //                thresholdTimer.Start();
+    //                return;
+    //            }
+    //            if (runningEntryWindowTitle == k)
+    //            {
+    //                thresholdTimer.Stop();
+    //                return;
+    //            }
+
+    //            thresholdTimer.Start();
+    //            //lastAutoTitle = k;
+    //            //lastActiveTitle = k;
+    //            //break;
+    //            return;
+    //        }
+    //    }
+
+        
+
+    //    thresholdTimer.Stop();
+    //    //if (currentWindow == windowTitle) return;
+    //    currentWindowTitleTrigger = windowTitle;
+
+    //}
+
+    private static void tryStartThresholdTimer(string windowTitle)
+    {
+        if (UserProperties.UserSettings.knownTitles == null) return;
+        if (windowTitle == null)
+        {
+            thresholdTimer.Stop();
+            return;
+        }
+        windowTitle = windowTitle.ToLower();
+        foreach (string k in UserProperties.UserSettings.knownTitles.Keys)
+        {
+            if (windowTitle.Contains(k))
+            {
+                if (thresholdTimer.IsEnabled)
+                {
+                    if (prevThrTriggered == k) return;
+                    
+                    thresholdTimer.Start();
+                    prevThrTriggered = k;
+                    return;
+                }
+
+                if (mainTimer.IsEnabled)
+                {
+                    if (runningEntryWindowTitle == k) 
+                    {
+                        thresholdTimer.Stop();
+                        return;
+                    }
+
+                    thresholdTimer.Start();
+                    prevThrTriggered = k;
+                    return;
+                }
+                thresholdTimer.Start();
+                prevThrTriggered = k;
+                return;
+            }
+        }
+        prevThrTriggered = null;
+        thresholdTimer.Stop();
+    }
+
+    private static void thresholdTimer_Tick(object sender, EventArgs a)
+    {
+        if (mainTimer.IsEnabled)
+        {
+            StoptMainTimer();
+        }
+
+        setTempNames(UserProperties.UserSettings.knownTitles[prevThrTriggered]);
+
+        StartMainTimer();
+
+        runningEntryWindowTitle = prevThrTriggered;
+
+        thresholdTimer.Stop();
+    }
+
+
+    public static void setTempNames(string[] names)
+    {
+        for (int i = 0; i < tempEntry.Length; i++) 
+        {
+            tempEntry[i] = names[i];
+        }
+
+        EventList.raise_DisplayNamesChanged();
+    }
+
+
+    public static string[] getNames()
+    {
+        if (mainTimer.IsEnabled)
+        {
+            return new string[] { runningEntry.field, runningEntry.project, runningEntry.stage };
+        }
+        string[] tempEntryDisplay = new string[3];
+        for (int i = 0; i < tempEntry.Length; i++)
+        {
+            if (tempEntry[i] == null)
+            {
+                tempEntryDisplay[i] = "";
+            }
+            else
+            {
+                tempEntryDisplay[i] = tempEntry[i];
+            }
+        }
+        return tempEntryDisplay;
+    }
+
+
+
+
+
+
+
+
+
+    private static void updateSettings() 
+    {
+        UserProperties.UserSettings = UserProperties.CheckSettings();
+    }
+
+    
+    
+    
+
+    #region mainTimer
+
+    
+    
+    public static void StartMainTimer()
+    {
+        reminderTimer.Stop();
+        mainTimer.Start();
+        idleTimer.Start();
+
+        runningEntry = new TimeEntry();
+        runningEntry.set_StartTime(DateTime.Now);
+        runningEntry.edit_Field(tempEntry[0]);
+        runningEntry.edit_Project(tempEntry[1]);
+        runningEntry.edit_Stage(tempEntry[2]);
+
+        EventList.raise_MainTimerStarted();
+    }
+
+    public static void StoptMainTimer(bool deleteEntry = false, double idleTimeInSeconds = 0)
+    {
+        mainTimer.Stop();
+        idleTimer.Stop();
+        reminderTimer.Start();
+
+        if (idleTimeInSeconds > 0)
+            runningEntry.edit_EndTime(DateTime.Now - TimeSpan.FromSeconds(idleTimeInSeconds));
+        else runningEntry.edit_EndTime(DateTime.Now);
+
+        runningDuration = TimeSpan.Zero;
+
+        if (!deleteEntry)
+        {
+            runningEntry.moveToHistory();
+        }
+
+        runningEntry = null;
+        EventList.raise_MainTimerStopped();
+    }
+
+
+
     #endregion
+
+   
 
     #region EntryOps
 
@@ -235,7 +327,7 @@ public class TimeTracker
             using (StreamWriter sw = new StreamWriter(UserProperties.UserSettings.SaveDirectory, append))
             {
                 //sw.Write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\n", currentEntry.startTime.ToString(), currentEntry.endTime.ToString(), TimeSpanToString(currentEntry.duration), currentEntry.field, currentEntry.project, currentEntry.stage);
-                string jsonString = JsonSerializer.Serialize(currentEntry, jsonOptions);
+                string jsonString = JsonSerializer.Serialize(runningEntry, jsonOptions);
                 sw.WriteLine(jsonString);
             }
         }
@@ -252,65 +344,65 @@ public class TimeTracker
                 }
             }
         }
-        EventList.raise_HistoryChanged(true);
+        //EventList.raise_HistoryChanged(true);
     }
 
-    public static void EditDateTime(int sourceEntryIndex, DateTime newDate, bool isEndTime)
-    {
-        (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry = history[sourceEntryIndex];
-        DateTime oldDate = tempEntry.startTime;
-        bool sort = false;
+    //public static void EditDateTime(int sourceEntryIndex, DateTime newDate, bool isEndTime)
+    //{
+    //    (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry = history[sourceEntryIndex];
+    //    DateTime oldDate = tempEntry.startTime;
+    //    bool sort = false;
 
-        if (isEndTime)
-            oldDate = tempEntry.endTime;
+    //    if (isEndTime)
+    //        oldDate = tempEntry.endTime;
 
-        if (oldDate == newDate)
-            return;
-        else
-        {
-            if (isEndTime)
-            {
-                tempEntry.endTime = newDate;
-                //EditDuration(sourceEntryIndex);
-                tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
-            }
-            else
-            {
-                tempEntry.startTime = newDate;
+    //    if (oldDate == newDate)
+    //        return;
+    //    else
+    //    {
+    //        if (isEndTime)
+    //        {
+    //            tempEntry.endTime = newDate;
+    //            //EditDuration(sourceEntryIndex);
+    //            tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
+    //        }
+    //        else
+    //        {
+    //            tempEntry.startTime = newDate;
 
-                if (UserProperties.UserSettings.END_TIME_SHIFT)
-                {
-                    tempEntry.endTime = tempEntry.endTime.Add(tempEntry.duration);
-                }
-                else
-                {
-                    //EditDuration(sourceEntryIndex);
-                    tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
-                    sort = true;
-                }
-            }
+    //            if (UserProperties.UserSettings.END_TIME_SHIFT)
+    //            {
+    //                tempEntry.endTime = tempEntry.endTime.Add(tempEntry.duration);
+    //            }
+    //            else
+    //            {
+    //                //EditDuration(sourceEntryIndex);
+    //                tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
+    //                sort = true;
+    //            }
+    //        }
 
-            history[sourceEntryIndex] = tempEntry;
-            if (sort)
-                SortEntries();
-            SaveEntry();
-        }
-    }
+    //        history[sourceEntryIndex] = tempEntry;
+    //        if (sort)
+    //            SortEntries();
+    //        SaveEntry();
+    //    }
+    //}
 
-    public static void EditCurrStart(DateTime newStarttime)
-    {
-        if (newStarttime > DateTime.Now) return;
-        currentEntry.startTime = newStarttime;
-        currentEntry.duration = DateTime.Now - currentEntry.startTime;
-    }
+    //public static void EditCurrStart(DateTime newStarttime)
+    //{
+    //    if (newStarttime > DateTime.Now) return;
+    //    currentEntry.startTime = newStarttime;
+    //    currentEntry.duration = DateTime.Now - currentEntry.startTime;
+    //}
 
-    public static void EditDuration(int sourceEntryIndex)
-    {
-        (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry = history[sourceEntryIndex];
+    //public static void EditDuration(int sourceEntryIndex)
+    //{
+    //    (DateTime startTime, DateTime endTime, TimeSpan duration, string field, string project, string stage) tempEntry = history[sourceEntryIndex];
 
-        tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
-        history[sourceEntryIndex] = tempEntry;
-    }
+    //    tempEntry.duration = tempEntry.endTime - tempEntry.startTime;
+    //    history[sourceEntryIndex] = tempEntry;
+    //}
 
     public static string TimeSpanToString(TimeSpan sourceTimeSpan, bool truncate = true)
     {
@@ -325,17 +417,25 @@ public class TimeTracker
         if (!File.Exists(UserProperties.UserSettings.SaveDirectory))
             return;
 
+        //string all = File.ReadAllText(UserProperties.UserSettings.SaveDirectory);
+        //var jsonW = JsonSerializer.Deserialize<List<TimeEntry>>(all, jsonOptions);
+
+        //history = jsonW;
+
         //using (StreamReader sr = File.OpenText(TimeTracker.UserSettings.SaveDirectory))
         using (StreamReader sr = new StreamReader(UserProperties.UserSettings.SaveDirectory))
         {
             string s;
-            (DateTime, DateTime, TimeSpan, string, string, string) jsonR;
+            TimeEntry jsonR;
+            JsonObject jsonO;
             history.Clear();
 
             while ((s = sr.ReadLine()) != null)
             {
                 //history.Add(ParseArrayToTuple(s.Split("\t")));
-                jsonR = JsonSerializer.Deserialize<(DateTime, DateTime, TimeSpan, string, string, string)>(s, jsonOptions);
+                jsonR = JsonSerializer.Deserialize<TimeEntry>(s, jsonOptions);
+                //var jsonR = JsonSerializer.Deserialize(s, TimeEntry, jsonOptions);
+                //jsonO = JsonNode.Parse(s).AsObject().Deserialize<TimeEntry>(s);
                 history.Add(jsonR);
             }
         }

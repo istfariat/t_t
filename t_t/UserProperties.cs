@@ -87,6 +87,6 @@ public class UserProperties
 
         UserSettings.knownTitles.Add(triggerWord, entryName);
         UpdateSettingsFile(UserSettings);
-        UserSettings = CheckSettings();
+        //UserSettings = CheckSettings();
     }
 }

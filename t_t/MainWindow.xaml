@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:t_t"
         mc:Ignorable="d"
-        Title="t_t" Height="500" Width="500">
-    <StackPanel>
+        Title="t_t" Height="500" Width="500"
+        MouseDown="window_click">
+    <StackPanel x:Name="stackPanel" Focusable="True">
         <Button x:Name="buttonDelete" Content="Delete" Click="buttonDelete_Click"/>
         <Button x:Name="buttonStopStart" Content="Stop/Start" Click="buttonStopStart_Click"/>
         <Button x:Name="buttonSettings" Content="Settings" Click="buttonSettings_Click"/>
@@ -24,9 +25,9 @@
             </ListView.ItemContainerStyle>
         </ListView>
         <Label x:Name="labelTimerRunning" Content="Label"/>
-        <TextBox x:Name="textBoxField" TextWrapping="Wrap" Text="Field" Width="120"/>
-        <TextBox x:Name="textBoxSubject" TextWrapping="Wrap" Text="Subject" Width="120"/>
-        <TextBox x:Name="textBoxStage" TextWrapping="Wrap" Text="Stage" Width="120"/>
+        <TextBox x:Name="textBoxField" TextWrapping="Wrap" Text="Field" Width="120" LostFocus="textBoxField_LostFocus"/>
+        <TextBox x:Name="textBoxProject" TextWrapping="Wrap" Text="Project" Width="120" LostFocus="textBoxProject_LostFocus"/>
+        <TextBox x:Name="textBoxStage" TextWrapping="Wrap" Text="Stage" Width="120" LostFocus="textBoxStage_LostFocus"/>
         <DatePicker x:Name="dateTimePickerStarttimeCurrent"/>
         <ListView x:Name="listView2" Height="100" d:ItemsSource="{d:SampleData ItemCount=5}">
             <ListView.View>

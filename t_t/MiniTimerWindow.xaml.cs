@@ -29,6 +29,7 @@ namespace t_t
             EventList.MainTimerStopped += ResetFields;
             EventList.MainTimerStarted += UpdateControls;
             EventList.SettingsChanged += test;
+            EventList.DisplayNamesChanged += UpdateControls;
         }
 
         private void test()
@@ -49,9 +50,12 @@ namespace t_t
 
         private void buttonStopStartMini_Click(object sender, EventArgs e)
         {
-            TimeTracker.currentEntry.field = textBoxFieldMini.Text;
-            TimeTracker.currentEntry.project = textBoxProjectMini.Text;
-            TimeTracker.currentEntry.stage = textBoxStageMini.Text;
+            string[] names = new string[] { textBoxFieldMini.Text, textBoxProjectMini.Text, textBoxStageMini.Text };
+            TimeTracker.setTempNames(names);
+            
+            //TimeTracker.currentEntry.field = textBoxFieldMini.Text;
+            //TimeTracker.currentEntry.project = textBoxProjectMini.Text;
+            //TimeTracker.currentEntry.stage = textBoxStageMini.Text;
 
             if (TimeTracker.mainTimer.IsEnabled)
             {
@@ -67,9 +71,10 @@ namespace t_t
 
         private void UpdateControls()
         {
-            textBoxFieldMini.Text = TimeTracker.currentEntry.field;
-            textBoxProjectMini.Text = TimeTracker.currentEntry.project;
-            textBoxStageMini.Text = TimeTracker.currentEntry.stage;
+            string[] updatedNames = TimeTracker.getNames();
+            textBoxFieldMini.Text = updatedNames[0];
+            textBoxProjectMini.Text = updatedNames[1];
+            textBoxStageMini.Text = updatedNames[2];
             if (!TimeTracker.mainTimer.IsEnabled)
             {
                 labelTimerRunningMini.Content = "--:--:--";
@@ -82,7 +87,51 @@ namespace t_t
 
         private void ShowRunningTime()
         {
-            labelTimerRunningMini.Content = TimeTracker.TimeSpanToString(TimeTracker.currentEntry.duration);
+            labelTimerRunningMini.Content = TimeTracker.TimeSpanToString(TimeTracker.runningDuration);
+        }
+
+        private void window_click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            gridMini.Focus();
+        }
+
+        private void textBoxFieldMini_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Field(textBoxFieldMini.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxFieldMini.Text, textBoxProjectMini.Text, textBoxStageMini.Text };
+                TimeTracker.setTempNames(temp);
+            }
+        }
+
+        private void textBoxProjectMini_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Project(textBoxProjectMini.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxFieldMini.Text, textBoxProjectMini.Text, textBoxStageMini.Text };
+                TimeTracker.setTempNames(temp);
+            }
+        }
+
+        private void textBoxStageMini_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Stage(textBoxStageMini.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxFieldMini.Text, textBoxProjectMini.Text, textBoxStageMini.Text };
+                TimeTracker.setTempNames(temp);
+            }
         }
     }
 }

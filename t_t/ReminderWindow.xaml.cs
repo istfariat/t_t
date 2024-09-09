@@ -41,11 +41,10 @@ namespace t_t
 
         private void buttonStartFromReminder_Click(object sender, EventArgs e)
         {
-            WindowClose();
-            TimeTracker.currentEntry.field = "";
-            TimeTracker.currentEntry.project = "";
-            TimeTracker.currentEntry.stage = "";
+            string[] names = new string[] {"", "", ""};
+            TimeTracker.setTempNames(names);
             TimeTracker.StartMainTimer();
+            WindowClose();
         }
 
         private void WindowClose()

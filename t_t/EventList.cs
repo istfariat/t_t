@@ -19,6 +19,7 @@ public class EventList
     public static event TrackerHandler SettingsChanged;
     public static event TrackerHandler CurrentEntryChanged;
     public static event TrackerHandler MainTimerTick;
+    public static event TrackerHandler DisplayNamesChanged;
 
     public delegate void HistoryHandler(bool added);
     public static event HistoryHandler HistoryChanged;
@@ -26,8 +27,13 @@ public class EventList
     public delegate void IdleNotification(double idleDurationMin, bool reset);
     public static event IdleNotification DiscardTime;
 
-    
-    public static void raise_MainTimerSttarted()
+
+    public static void raise_DisplayNamesChanged()
+    {
+        DisplayNamesChanged?.Invoke();
+    }
+
+    public static void raise_MainTimerStarted()
     {
         MainTimerStarted?.Invoke();
     }

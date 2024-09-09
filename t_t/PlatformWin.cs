@@ -7,7 +7,7 @@ using System.Text;
 public class PlatformWin
 {
 
-    public static uint idleTime;
+    public static uint idleTime = 0;
 
     public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
     

@@ -2,21 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace t_t
 {
-    internal class TimeEntry
+    public class TimeEntry
     {
+        [JsonInclude]
         public DateTime startTime { get; private set; }
+        [JsonInclude]
         public DateTime endTime { get; private set; }
+        [JsonInclude]
         public TimeSpan duration { get; private set; }
-        public string field { get { return this.field; } private set { this.field = ""; } }
-        public string project { get { return this.project; } private set { this.project = ""; } }
-        public string stage { get { return this.stage; } private set { this.stage = ""; } }
+        [JsonInclude]
+        public string field { get; private set; }
+        [JsonInclude]
+        public string project { get; private set; }
+        [JsonInclude]
+        public string stage { get; private set; }
+
         private bool current = true;
 
-        
+        public void set_StartTime(DateTime newStartTime)
+        {
+            this.startTime = newStartTime;
+            //this.raise_ChangedEvent();
+        }
+
         public void edit_Field(string newField)
         {
             this.field = newField;
@@ -48,7 +61,7 @@ namespace t_t
             this.raise_ChangedEvent();
         }
 
-        public void edit_endTime(DateTime newEndTime)
+        public void edit_EndTime(DateTime newEndTime)
         {
             this.endTime = newEndTime;
             this.duration = this.endTime - this.startTime;

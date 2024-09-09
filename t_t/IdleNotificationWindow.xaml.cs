@@ -64,7 +64,8 @@ namespace t_t
             int temp = getIdleSeconds();
             TimeTracker.StoptMainTimer(false, temp);
             TimeTracker.StartMainTimer();
-            TimeTracker.EditCurrStart(idleSince);
+            //TimeTracker.EditCurrStart(idleSince);
+            TimeTracker.runningEntry.set_StartTime(idleSince);
             this.Close();
         }
 

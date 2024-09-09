@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection.Emit;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -31,7 +32,6 @@ namespace t_t
             InitializeComponent();
 
             UserProperties.CheckSettings();
-            //Settings settings = UserProperties.CheckSettings();
             TimeTracker.SortEntries();
             ShowHistory(false);
 
@@ -51,6 +51,7 @@ namespace t_t
             TimeTracker.checkWindowTimer.Tick += testF;
             EventList.SettingsChanged += update_Settings;
             EventList.MainTimerStarted += UpdateControls;
+            EventList.DisplayNamesChanged += UpdateControls;
             
 
             TimeTracker.reminderTimer.Start();
@@ -81,12 +82,22 @@ namespace t_t
 
         private void UpdateControls()
         {
-            textBoxField.Text = TimeTracker.currentEntry.field;
-            textBoxSubject.Text = TimeTracker.currentEntry.project;
-            textBoxStage.Text = TimeTracker.currentEntry.stage;
-            dateTimePickerStarttimeCurrent.SelectedDate = TimeTracker.currentEntry.startTime;
+            string[] updatedNames = TimeTracker.getNames();
+            textBoxField.Text = updatedNames[0];
+            textBoxProject.Text = updatedNames[1];
+            textBoxStage.Text = updatedNames[2];
+
+            //textBoxField.Text = TimeTracker.runningEntry.field;
+            //textBoxProject.Text = TimeTracker.runningEntry.project;
+            //textBoxStage.Text = TimeTracker.runningEntry.stage;
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                dateTimePickerStarttimeCurrent.SelectedDate = TimeTracker.runningEntry.startTime;
+                buttonDelete.Visibility = Visibility.Visible;
+            }
+            
             labelTimerRunning.Content = "00:00:00";
-            buttonDelete.Visibility = Visibility.Visible; 
+             
         }
 
 
@@ -94,7 +105,7 @@ namespace t_t
         {
             labelTimerRunning.Content = "--:--:--";
             textBoxField.Text = string.Empty;
-            textBoxSubject.Text = string.Empty;
+            textBoxProject.Text = string.Empty;
             textBoxStage.Text = string.Empty;
         }
 
@@ -104,17 +115,19 @@ namespace t_t
 
             if (resetText) return;
 
-            textBoxField.Text = TimeTracker.currentEntry.field;
-            textBoxSubject.Text = TimeTracker.currentEntry.project;
-            textBoxStage.Text = TimeTracker.currentEntry.stage;
+            textBoxField.Text = TimeTracker.runningEntry.field;
+            textBoxProject.Text = TimeTracker.runningEntry.project;
+            textBoxStage.Text = TimeTracker.runningEntry.stage;
         }
 
 
         private void buttonStopStart_Click(object sender, EventArgs e)
         {
-            TimeTracker.currentEntry.field = textBoxField.Text;
-            TimeTracker.currentEntry.project = textBoxSubject.Text;
-            TimeTracker.currentEntry.stage = textBoxStage.Text;
+            string[] names = new string[] { textBoxField.Text, textBoxProject.Text, textBoxStage.Text };
+            TimeTracker.setTempNames(names);
+            //TimeTracker.currentEntry.field = textBoxField.Text;
+            //TimeTracker.currentEntry.project = textBoxSubject.Text;
+            //TimeTracker.currentEntry.stage = textBoxStage.Text;
 
             if (TimeTracker.mainTimer.IsEnabled)
             {
@@ -132,31 +145,31 @@ namespace t_t
         {
             EditEntryWindow editWindow = new EditEntryWindow(this);
             editWindow.Owner = this;
-            editWindow.entryIndex = listViewHistory.SelectedIndex;
+            editWindow.entryToEdit = TimeTracker.history[listViewHistory.SelectedIndex];
             editWindow.Show();
         }
 
 
         private void textBoxField_Leave(object sender, EventArgs a)
         {
-            TimeTracker.currentEntry.field = textBoxField.Text;
+            TimeTracker.runningEntry.edit_Field(textBoxField.Text);
         }
 
         void textBoxSubject_Leave(object sender, EventArgs a)
         {
-            TimeTracker.currentEntry.project = textBoxSubject.Text;
+            TimeTracker.runningEntry.edit_Project(textBoxProject.Text);
         }
 
         void textBoxStage_Leave(object sender, EventArgs a)
         {
-            TimeTracker.currentEntry.stage = textBoxStage.Text;
+            TimeTracker.runningEntry.edit_Stage(textBoxStage.Text);
         }
 
 
         private void dateTimePickerHistory_ValueChanged(object sender, EventArgs e)
         {
-            TimeTracker.EditCurrStart(dateTimePickerStarttimeCurrent.SelectedDate.Value);
-            dateTimePickerStarttimeCurrent.SelectedDate = TimeTracker.currentEntry.startTime;
+            TimeTracker.runningEntry.edit_StartTime(dateTimePickerStarttimeCurrent.SelectedDate.Value, UserProperties.UserSettings.END_TIME_SHIFT);
+            dateTimePickerStarttimeCurrent.SelectedDate = TimeTracker.runningEntry.startTime;
         }
 
 
@@ -193,7 +206,7 @@ namespace t_t
 
         void ShowRunningTime(object sender, EventArgs a)
         {
-            labelTimerRunning.Content = TimeTracker.TimeSpanToString(TimeTracker.currentEntry.duration);
+            labelTimerRunning.Content = TimeTracker.TimeSpanToString(TimeTracker.runningDuration);
         }
         #endregion
 
@@ -234,6 +247,50 @@ namespace t_t
             if (item != null && item.IsSelected)
             {
                 listViewHistory_Click(sender, e);
+            }
+        }
+
+        private void window_click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            stackPanel.Focus();
+        }
+
+        private void textBoxField_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Field(textBoxField.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxField.Text, textBoxProject.Text, textBoxStage.Text };
+                TimeTracker.setTempNames(temp);
+            }
+        }
+
+        private void textBoxProject_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Project(textBoxProject.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxField.Text, textBoxProject.Text, textBoxStage.Text };
+                TimeTracker.setTempNames(temp);
+            }
+        }
+
+        private void textBoxStage_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TimeTracker.mainTimer.IsEnabled)
+            {
+                TimeTracker.runningEntry.edit_Stage(textBoxStage.Text);
+            }
+            else
+            {
+                string[] temp = new string[] { textBoxField.Text, textBoxProject.Text, textBoxStage.Text };
+                TimeTracker.setTempNames(temp);
             }
         }
     }
